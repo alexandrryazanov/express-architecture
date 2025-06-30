@@ -1,13 +1,10 @@
-import joi, { type ObjectSchema } from "joi";
+import * as joi from "@hapi/joi";
+import "joi-extract-type";
 
-export interface CreateUserDto {
-  name: string;
-  age: number;
-  email: string;
-}
-
-export const userCreateSchema: ObjectSchema<CreateUserDto> = joi.object({
+export const createUserDto = joi.object({
   name: joi.string().required(),
   age: joi.number().required(),
   email: joi.string().email().required(),
 });
+
+export type CreateUserDto = joi.extractType<typeof createUserDto>;

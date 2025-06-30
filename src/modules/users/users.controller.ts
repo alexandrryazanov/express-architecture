@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { validateMiddleware } from "../../middlewares/validation.middleware";
 import type { Controller } from "../../types/controller";
-import { userCreateSchema } from "./dto/create-user.dto";
+import { createUserDto } from "./dto/create-user.dto";
 import type { UsersService } from "./users.service";
 
 export class UsersController implements Controller {
@@ -36,7 +36,7 @@ export class UsersController implements Controller {
 
     this.router.post(
       "/",
-      validateMiddleware(userCreateSchema, "users"),
+      validateMiddleware(createUserDto, "users"),
       (req, res) => {
         const result = this.usersService.create(req.body);
         res.send(result);

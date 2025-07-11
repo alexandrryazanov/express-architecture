@@ -7,7 +7,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
   "devDependencies": {
     "@types/express": "^5.0.3",
     "nodemon": "^3.1.9",
@@ -21,5 +20,15 @@
     "joi": "^17.13.3",
     "joi-extract-type": "^15.0.8",
     "ts-node": "^10.9.2"
-  }
+  },
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alexandrryazanov/express-architecture.git"
+  },
+  "bugs": {
+    "url": "https://github.com/alexandrryazanov/express-architecture/issues"
+  },
+  "homepage": "https://github.com/alexandrryazanov/express-architecture#readme",
+  "description": ""
 }

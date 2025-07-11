@@ -1,35 +1,53 @@
-import * as CryptoJS from "crypto-js";
+import * as crypto from "node:crypto";
 
-export class MyCrypto {
+export class CryptoService {
 
-  private secret: String;
+  private _def_iv: Buffer = crypto.randomBytes(16);
+  private key: crypto.CipherKey;
 
-  constructor(secret: String) {
-    this.secret = secret;
+  constructor(secret: string ) {
+    this.key = crypto.createHash('sha256')
+      .update(secret)
+      .digest();
   }
 
-  getSha256(message: String) {
-    const hash = CryptoJS.SHA256(message);
-    return hash.toString(CryptoJS.enc.Hex);
+  getSha256(message: string ) {
+    const hash = crypto.createHash('sha256')
+      .update(message)
+      .digest('hex');
+    return hash;
   }
 
-  getHmacMd5(message: String) {
-    var hash = CryptoJS.HmacMD5(message, this.secret);
-    return hash.toString(CryptoJS.enc.Hex);
+  getMd5(message: string ) {
+    var hash = crypto.createHash('md5')
+      .update(message)
+      .digest('hex');
+    return hash;
   }
 
-  getHmacSha256(message: String) {
-    var hash = CryptoJS.HmacSHA256(message, this.secret);
-    return hash.toString(CryptoJS.enc.Hex);
+  getHmacSha256(message: string ) {
+    var hmac = crypto.createHmac('sha256', this.key)
+      .update(message)
+      .digest('hex')
+    return hmac;
   }
 
-  encryptAes(message: String) {
-    var encrypted = CryptoJS.AES.encrypt(message, this.secret);
-    return encrypted.toString();
+  getHmacMd5(message: string ) {
+    var hmac = crypto.createHmac('md5', this.key)
+      .update(message)
+      .digest('hex')
+    return hmac;
   }
 
-  decryptAes(decryptedMessage: String) {
-    var decrypted = CryptoJS.AES.decrypt(decryptedMessage, this.secret);
-    return decrypted.toString(CryptoJS.enc.Utf8);
+  encryptAes(message: string ) {
+    const cipher = crypto.createCipheriv('aes-256-cbc', this.key, this._def_iv);
+    cipher.update(message, 'utf8');
+    return cipher.final('hex');
+  }
+
+  decryptAes(encrMessage: string ) {
+    const decipher = crypto.createDecipheriv('aes-256-cbc', this.key, this._def_iv);
+    decipher.write(encrMessage, 'hex');
+    return decipher.final('utf8');
   }
 }

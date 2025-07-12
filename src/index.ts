@@ -7,7 +7,9 @@ import { UsersController } from "./modules/users/users.controller";
 import { UsersService } from "./modules/users/users.service";
 import type { Controller } from "./types/controller";
 
-import { CryptoService } from "./services/crypto/crypto.service"
+import { CryptoService } from "./services/crypto/crypto.service";
+import { ItemsController } from "./modules/items/items.controller";
+import { ItemsService } from "./modules/items/items.service";
 
 const app = express();
 
@@ -17,10 +19,12 @@ app.listen(3000, () => console.log("Server is running on port 3000"));
 
 const ordersService = new OrdersService();
 const usersService = new UsersService();
+const itemsService = new ItemsService();
 
 const controllers: Controller[] = [
   new UsersController(usersService),
   new OrdersController(ordersService),
+  new ItemsController(itemsService),
 ];
 
 controllers.forEach((controller) =>
@@ -30,10 +34,10 @@ controllers.forEach((controller) =>
 app.use(errorLoggerMiddleware);
 app.use(errorMiddleware);
 
-if (1) { 
+if (1) {
   const mc = new CryptoService("my_super_secret_frase");
   // const mc = new CryptoService();
-  
+
   const h1 = mc.getMd5("123123123123123123");
   console.log("hash(md5):", h1);
 
@@ -46,10 +50,10 @@ if (1) {
   const h4 = mc.getHmacSha256("123123123123123123");
   console.log("hmac(sha256):", h4);
 
-  const message = "super message 1"
+  const message = "super message 1";
   const e1 = mc.encryptAes(message);
   const d1 = mc.decryptAes(e1);
-  
+
   console.log("message:", message);
   console.log("encryption(AES):", e1);
   console.log("decryption(AES):", d1);

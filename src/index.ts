@@ -8,8 +8,8 @@ import { UsersService } from "./modules/users/users.service";
 import type { Controller } from "./types/controller";
 
 import { CryptoService } from "./services/crypto/crypto.service"
-import {ConfigService} from "./config/config.service";
-import {ConfigController} from "./config/config.controller";
+import { ConfigService } from "./config/config.service";
+import { ConfigController } from "./config/config.controller";
 
 const app = express();
 

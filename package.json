@@ -10,6 +10,7 @@
   "description": "",
   "devDependencies": {
     "@types/express": "^5.0.3",
+    "@types/pg": "^8.15.4",
     "nodemon": "^3.1.9",
     "prettier": "^3.5.1",
     "typescript": "^5.7.3"
@@ -19,6 +20,7 @@
     "express": "^5.1.0",
     "joi": "^17.13.3",
     "joi-extract-type": "^15.0.8",
+    "pg": "^8.16.3",
     "ts-node": "^10.9.2"
   }
 }

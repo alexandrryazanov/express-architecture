@@ -1,17 +1,23 @@
-import { NotFoundError } from "../../extensions/error.extension";
+import type { PostgresService } from "../postgres/postgres.services";
 import type { CreateUserDto } from "./dto/create-user.dto";
 
 export class UsersService {
-  getAll() {
-    return [
-      { id: 1, name: "user 1" },
-      { id: 2, name: "user 2" },
-    ];
+  constructor(private postgresService: PostgresService) {}
+
+  async getAll() {
+    const { rows: users } = await this.postgresService.client.query(
+      "SELECT * FROM t_users",
+    );
+
+    return users;
   }
 
-  create(params: CreateUserDto) {
-    throw new NotFoundError("User 1 not found", "users");
-    // return { id: 1, name: params.name, age: params.age, email: params.email };
+  async create({ email, pwd }: CreateUserDto) {
+    const { rows: users } = await this.postgresService.client.query(
+      `INSERT INTO t_users (email, pwd) VALUES ('${email}', '${pwd}');`,
+    );
+
+    return users;
   }
 
   delete({}: any) {

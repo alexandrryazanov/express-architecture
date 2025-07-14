@@ -1,8 +1,10 @@
 import express from "express";
+import * as process from "node:process";
 import { errorLoggerMiddleware } from "./middlewares/error-logger.middleware";
 import { errorMiddleware } from "./middlewares/error.middleware";
 import { OrdersController } from "./modules/orders/orders.controller";
 import { OrdersService } from "./modules/orders/orders.service";
+import { PostgresService } from "./modules/postgres/postgres.services";
 import { UsersController } from "./modules/users/users.controller";
 import { UsersService } from "./modules/users/users.service";
 import type { Controller } from "./types/controller";
@@ -10,54 +12,40 @@ import type { Controller } from "./types/controller";
 import { ConfigService } from "./config/config.service";
 import { ConfigController } from "./config/config.controller";
 import { ItemsService } from "./modules/items/items.service";
-import { ItemsController} from "./modules/items/items.controller";
-import { CryptoService } from "./modules/crypto/crypto.service";
+import { ItemsController } from "./modules/items/items.controller";
 
 const app = express();
 
 app.use(express.json());
 
-app.listen(3000, () => console.log("Server is running on port 3000"));
+app.listen(3000, async () => {
+  console.log("Server is running on port 3000");
 
-const ordersService = new OrdersService();
-const usersService = new UsersService();
-const itemsService = new ItemsService();
-const configService = new ConfigService();
+  const postgresService = new PostgresService();
+  const ordersService = new OrdersService();
+  const usersService = new UsersService(postgresService);
+  const itemsService = new ItemsService();
+  const configService = new ConfigService();
 
-const controllers: Controller[] = [
-  new UsersController(usersService),
-  new OrdersController(ordersService),
-  new ConfigController(configService),
-  new ItemsController(itemsService),
-];
+  const controllers: Controller[] = [
+    new UsersController(usersService),
+    new OrdersController(ordersService),
+    new ConfigController(configService),
+    new ItemsController(itemsService),
+  ];
 
-controllers.forEach((controller) =>
-  app.use(controller.path, controller.router),
-);
+  controllers.forEach((controller) =>
+    app.use(controller.path, controller.router),
+  );
+
+  try {
+    await postgresService.connect();
+    console.log("Connected to DB");
+  } catch (error) {
+    console.error("Could not connect to postgres", error);
+    process.exit(1);
+  }
+});
 
 app.use(errorLoggerMiddleware);
 app.use(errorMiddleware);
-
-if (1) {
-  const mc = new CryptoService("my_super_secret_phrase");
-
-  const h1 = mc.getMd5("123123123123123123");
-  console.log("hash(md5):", h1);
-
-  const h2 = mc.getSha256("123123123123123123");
-  console.log("hash(sha256):", h2);
-
-  const h3 = mc.getHmacMd5("123123123123123123");
-  console.log("hmac(md5):", h3);
-
-  const h4 = mc.getHmacSha256("123123123123123123");
-  console.log("hmac(sha256):", h4);
-
-  const message = "super message 1";
-  const e1 = mc.encryptAes(message);
-  const d1 = mc.decryptAes(e1);
-
-  console.log("message:", message);
-  console.log("encryption(AES):", e1);
-  console.log("decryption(AES):", d1);
-}

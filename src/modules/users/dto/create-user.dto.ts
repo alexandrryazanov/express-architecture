@@ -3,9 +3,8 @@ import "joi-extract-type";
 
 export const createUserDto = joi
   .object({
-    name: joi.string().required(),
-    age: joi.number().required(),
     email: joi.string().email().required(),
+    pwd: joi.string().required(),
   })
   .required();
 

@@ -24,8 +24,11 @@ export class UsersController implements Controller {
   }
 
   private initRoutes() {
-    this.router.get("/", (req, res) => {
-      const result = this.usersService.getAll();
+    this.router.get("/", async (req, res) => {
+      const result = await this.usersService.getAll({
+        limit: req.query.limit,
+        offset: req.query.offset,
+      });
       res.send(result);
     });
 

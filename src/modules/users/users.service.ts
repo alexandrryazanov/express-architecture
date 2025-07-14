@@ -1,17 +1,40 @@
-import { NotFoundError } from "../../extensions/error.extension";
+import type { PostgresService } from "../postgres/postgres.services";
+import type { RedisService } from "../redis/redis.services";
 import type { CreateUserDto } from "./dto/create-user.dto";
 
 export class UsersService {
-  getAll() {
-    return [
-      { id: 1, name: "user 1" },
-      { id: 2, name: "user 2" },
-    ];
+  constructor(
+    private postgresService: PostgresService,
+    private redisService: RedisService,
+  ) {}
+
+  async getAll({
+    limit = 10,
+    offset = 0,
+  }: { limit?: number; offset?: number } = {}) {
+    const redisUsers = await this.redisService.client.get(
+      `users:${limit}:${offset}`,
+    );
+    if (redisUsers) return JSON.parse(redisUsers);
+
+    const { rows: users } = await this.postgresService.client.query(
+      `SELECT * FROM users LIMIT $1 OFFSET $2`,
+      [limit, offset],
+    );
+
+    await this.redisService.client.set("users", JSON.stringify(users));
+
+    return users;
   }
 
-  create(params: CreateUserDto) {
-    throw new NotFoundError("User 1 not found", "users");
-    // return { id: 1, name: params.name, age: params.age, email: params.email };
+  async create({ email, pwd }: CreateUserDto) {
+    const { rows: users } = await this.postgresService.client.query(
+      `INSERT INTO users (email, pwd) VALUES ('${email}', '${pwd}');`,
+    );
+
+    await this.redisService.client.del("users:*");
+
+    return users;
   }
 
   delete({}: any) {

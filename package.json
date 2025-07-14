@@ -2,7 +2,9 @@
   "name": "be",
   "version": "1.0.0",
   "scripts": {
-    "dev": "nodemon"
+    "dev": "nodemon",
+    "migrate": "node migrations/init.js",
+    "seed": "node seed/init.js"
   },
   "keywords": [],
   "author": "",

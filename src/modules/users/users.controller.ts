@@ -1,38 +1,32 @@
-import { Router } from "express";
+import { cacheMiddleware } from "../../middlewares/cache.middleware";
 import { validateMiddleware } from "../../middlewares/validation.middleware";
-import type { Controller } from "../../types/controller";
+import { Controller } from "../../types/controller";
+import type { RedisService } from "../redis/redis.services";
 import { createUserDto } from "./dto/create-user.dto";
 import type { UsersService } from "./users.service";
 
-export class UsersController implements Controller {
-  private readonly _path;
-  private readonly _router;
-
-  constructor(private usersService: UsersService) {
-    this._path = "/users";
-    this._router = Router();
-
-    this.initRoutes();
+export class UsersController extends Controller {
+  constructor(
+    private usersService: UsersService,
+    private readonly redisService: RedisService,
+  ) {
+    super("users");
   }
 
-  get path() {
-    return this._path;
-  }
+  initRoutes() {
+    this.router.get(
+      "/",
+      cacheMiddleware(this.redisService),
+      async (req, res) => {
+        const result = await this.usersService.getAll({
+          limit: Number(req.query.limit || 10),
+          offset: Number(req.query.offset || 0),
+        });
+        res.send(result);
+      },
+    );
 
-  get router() {
-    return this._router;
-  }
-
-  private initRoutes() {
-    this.router.get("/", async (req, res) => {
-      const result = await this.usersService.getAll({
-        limit: req.query.limit,
-        offset: req.query.offset,
-      });
-      res.send(result);
-    });
-
-    this.router.get("/:id", (req, res) => {
+    this.router.get("/:id", cacheMiddleware(this.redisService), (req, res) => {
       const result = this.usersService.getOne();
       res.send(result);
     });

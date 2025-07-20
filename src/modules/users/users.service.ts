@@ -12,17 +12,10 @@ export class UsersService {
     limit = 10,
     offset = 0,
   }: { limit?: number; offset?: number } = {}) {
-    const redisUsers = await this.redisService.client.get(
-      `users:${limit}:${offset}`,
-    );
-    if (redisUsers) return JSON.parse(redisUsers);
-
     const { rows: users } = await this.postgresService.client.query(
       `SELECT * FROM users LIMIT $1 OFFSET $2`,
       [limit, offset],
     );
-
-    await this.redisService.client.set("users", JSON.stringify(users));
 
     return users;
   }

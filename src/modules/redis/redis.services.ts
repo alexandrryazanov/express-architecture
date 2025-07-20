@@ -1,20 +1,27 @@
+import process from "node:process";
 import { createClient } from "redis";
 
 export class RedisService {
-  private _client: any;
+  private readonly _client: ReturnType<typeof createClient>;
 
   constructor() {
     this._client = createClient().on("error", (err) =>
-      console.log("Redis Client Error", err),
+      console.log("[REDIS] Client Error", err),
     );
   }
 
   async connect() {
-    await this._client.connect();
+    try {
+      await this._client.connect();
+      console.log("[REDIS] Connected to Redis");
+    } catch (error) {
+      console.error("[REDIS] Could not connect to Redis", error);
+      process.exit(1);
+    }
   }
 
-  async disconnect() {
-    await this._client.destroy();
+  disconnect() {
+    this._client.destroy();
   }
 
   get client() {

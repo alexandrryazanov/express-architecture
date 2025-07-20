@@ -1,27 +1,12 @@
-import { Router } from "express";
-import type { Controller } from "../../types/controller";
+import { Controller } from "../../types/controller";
 import type { OrdersService } from "./orders.service";
 
-export class OrdersController implements Controller {
-  private readonly _path;
-  private readonly _router;
-
+export class OrdersController extends Controller {
   constructor(private ordersService: OrdersService) {
-    this._path = "/orders";
-    this._router = Router();
-
-    this.initRoutes();
+    super("orders");
   }
 
-  get path() {
-    return this._path;
-  }
-
-  get router() {
-    return this._router;
-  }
-
-  private initRoutes() {
+  override initRoutes() {
     this.router.get("/", (req, res) => {
       const result = this.ordersService.getAll();
       res.send(result);

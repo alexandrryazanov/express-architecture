@@ -1,3 +1,4 @@
+import process from "node:process";
 import { Client } from "pg";
 
 export class PostgresService {
@@ -14,7 +15,13 @@ export class PostgresService {
   }
 
   async connect() {
-    await this.client.connect();
+    try {
+      await this.client.connect();
+      console.log("[POSTGRES] Connected to Postgres");
+    } catch (error) {
+      console.error("[POSTGRES] Could not connect to postgres", error);
+      process.exit(1);
+    }
   }
 
   async disconnect() {

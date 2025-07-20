@@ -1,4 +1,5 @@
 import type { PostgresService } from "../postgres/postgres.services";
+import type { RedisService } from "../redis/redis.services";
 import type { CreateOrderDto } from "./dto/create-order.dto";
 
 export class OrdersService {
@@ -6,6 +7,7 @@ export class OrdersService {
 
   constructor(
     private postgresService: PostgresService,
+    private redisService: RedisService,
   ) {}
 
   async getAll({
@@ -13,21 +15,21 @@ export class OrdersService {
     offset = 0,
   }: { limit?: number; offset?: number } = {})  {
 
-    // do not delete
-    // const redisKey = `orders:${limit}:${offset}`;
-    // console.log("redisKey = " + redisKey)
+    const redisKey = `orders:${limit}:${offset}`;
+    console.log("redisKey = " + redisKey)
 
-    // do not delete
-    // const redisOrders = await this.redisService.client.get(redisKey);
-    // if (redisOrders) return JSON.parse(redisOrders);
+    const redisOrders = await this.redisService.client.get(redisKey);
+    if (redisOrders) {
+      console.log("get data from redis");
+      return JSON.parse(redisOrders);
+    }
 
     const { rows: orders } = await this.postgresService.client.query(
       `SELECT * FROM ${this._tableName} LIMIT $1 OFFSET $2`,
       [limit, offset],
     );
 
-    // do not delete
-    // await this.redisService.client.set(redisKey, JSON.stringify(orders));
+    await this.redisService.client.set(redisKey, JSON.stringify(orders));
 
     return orders;
   }
@@ -39,9 +41,15 @@ export class OrdersService {
         `VALUES (${userId}, '${productName}', ${amount});`,
       );
 
+      try {
+        await this.redisService.deleteKeys("orders*");
+      } catch (e) {
+        console.log("error on redis:deleteKeys, error:", e);
+      }
+
       return orders;
     } catch (e) {
-      return {error: "Couldn't create new order (some error occurred)"}
+      return {error: "Couldn't create new order (" + e + ")"}
     }
   }
 

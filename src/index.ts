@@ -24,7 +24,7 @@ app.listen(3000, async () => {
 
   const redisService = new RedisService();
   const postgresService = new PostgresService();
-  const ordersService = new OrdersService(postgresService);
+  const ordersService = new OrdersService(postgresService, redisService);
   const usersService = new UsersService(postgresService, redisService);
   const itemsService = new ItemsService();
   const configService = new ConfigService();

@@ -1,6 +1,8 @@
 import { Router } from "express";
 import type { Controller } from "../../types/controller";
 import type { OrdersService } from "./orders.service";
+import { validateMiddleware } from "../../middlewares/validation.middleware";
+import { createOrderDto } from "./dto/create-order.dto";
 
 export class OrdersController implements Controller {
   private readonly _path;
@@ -22,23 +24,29 @@ export class OrdersController implements Controller {
   }
 
   private initRoutes() {
-    this.router.get("/", (req, res) => {
-      const result = this.ordersService.getAll();
+
+    this.router.get("/", async (req, res) => {
+      const result = await this.ordersService.getAll({
+        limit: req.query.limit,
+        offset: req.query.offset,
+      });
       res.send(result);
     });
 
-    this.router.get("/:id", (req, res) => {
-      const result = this.ordersService.getOne();
+    this.router.get("/:id", async (req, res) => {
+      const result = await this.ordersService.getOne(req.params.id);
       res.send(result);
     });
 
-    this.router.post("/", (req, res) => {
-      const result = this.ordersService.create(req.body);
-      res.send(result);
+    this.router.post("/",
+      validateMiddleware(createOrderDto, "orders"),
+      async (req, res) => {
+        const result = await this.ordersService.create(req.body);
+        res.send(result);
     });
 
-    this.router.delete("/:id", (req, res) => {
-      const result = this.ordersService.delete(req.params.id);
+    this.router.delete("/:id", async (req, res) => {
+      const result = await this.ordersService.delete(req.params.id);
       res.send(result);
     });
   }

@@ -35,3 +35,5 @@ deploy-production.sh
 
 # Sentry Config File
 .sentryclirc
+
+/build

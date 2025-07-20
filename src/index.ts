@@ -8,6 +8,8 @@ import { PostgresService } from "./modules/postgres/postgres.services";
 import { RedisService } from "./modules/redis/redis.services";
 import { UsersController } from "./modules/users/users.controller";
 import { UsersService } from "./modules/users/users.service";
+import { CategoryService } from "./modules/categories/category.service";
+import { CategoryController } from "./modules/categories/category.controller";
 import type { Controller } from "./types/controller";
 
 import { ConfigService } from "./config/config.service";
@@ -26,18 +28,20 @@ app.listen(3000, async () => {
   const postgresService = new PostgresService();
   const ordersService = new OrdersService();
   const usersService = new UsersService(postgresService, redisService);
+  const categoryService = new CategoryService();
   const itemsService = new ItemsService();
   const configService = new ConfigService();
 
   const controllers: Controller[] = [
     new UsersController(usersService),
     new OrdersController(ordersService),
+    new CategoryController(categoryService),
     new ConfigController(configService),
     new ItemsController(itemsService),
   ];
 
   controllers.forEach((controller) =>
-    app.use(controller.path, controller.router),
+    app.use(controller.path, controller.router)
   );
 
   try {

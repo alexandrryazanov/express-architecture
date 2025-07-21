@@ -1,22 +1,38 @@
+import type { PrismaService } from "../prisma/prisma.service";
+
 export class OrdersService {
-  getAll() {
-    return [
-      { id: 1, name: "order 1" },
-      { id: 2, name: "order 2" },
-    ];
+  constructor(private prismaService: PrismaService) {}
+
+  async getAll() {
+    return this.prismaService.order.findMany({
+      include: {
+        items: true,
+      },
+    });
   }
 
-  create({}: any) {
+  async create({}: any) {
     // creating in DB
-    return { id: 1, name: "order 1" };
+    return this.prismaService.order.create({
+      data: {
+        user: { connect: { id: 1 } },
+        items: {
+          connect: [{ id: 1 }, { id: 2 }],
+        },
+      },
+      include: {
+        items: true,
+        user: { select: { id: true, email: true } },
+      },
+    });
   }
 
-  delete({}: any) {
+  async delete({}: any) {
     // deleting
     return { id: 1, name: "order 1" };
   }
 
-  getOne() {
+  async getOne() {
     return { id: 1, name: "order 1" };
   }
 }

@@ -7,23 +7,23 @@ export class OrdersController extends Controller {
   }
 
   override initRoutes() {
-    this.router.get("/", (req, res) => {
-      const result = this.ordersService.getAll();
+    this.router.get("/", async (req, res) => {
+      const result = await this.ordersService.getAll();
       res.send(result);
     });
 
-    this.router.get("/:id", (req, res) => {
-      const result = this.ordersService.getOne();
+    this.router.get("/:id", async (req, res) => {
+      const result = await this.ordersService.getOne();
       res.send(result);
     });
 
-    this.router.post("/", (req, res) => {
-      const result = this.ordersService.create(req.body);
+    this.router.post("/", async (req, res) => {
+      const result = await this.ordersService.create(req.body);
       res.send(result);
     });
 
-    this.router.delete("/:id", (req, res) => {
-      const result = this.ordersService.delete(req.params.id);
+    this.router.delete("/:id", async (req, res) => {
+      const result = await this.ordersService.delete(req.params.id);
       res.send(result);
     });
   }

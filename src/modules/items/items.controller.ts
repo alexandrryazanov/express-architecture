@@ -1,36 +1,21 @@
-import { Router } from "express";
-import type { Controller } from "../../types/controller";
+import { Controller } from "../../types/controller";
 import type { ItemsService } from "./items.service";
 import { validateMiddleware } from "../../middlewares/validation.middleware";
 import { createItemDto } from "./dto/create-item.dto";
 
-export class ItemsController implements Controller {
-  private readonly _path;
-  private readonly _router;
-
+export class ItemsController extends Controller {
   constructor(private itemsService: ItemsService) {
-    this._path = "/items";
-    this._router = Router();
-
-    this.initRoutes();
+    super("items");
   }
 
-  get path() {
-    return this._path;
-  }
-
-  get router() {
-    return this._router;
-  }
-
-  private initRoutes() {
+  override initRoutes() {
     this.router.get("/", (req, res) => {
       const result = this.itemsService.getAll();
       res.send(result);
     });
 
     this.router.get("/:id", (req, res) => {
-      const result = this.itemsService.getOne(req.params.id);
+      const result = this.itemsService.getOne(+req.params.id);
       res.send(result);
     });
 
@@ -44,7 +29,7 @@ export class ItemsController implements Controller {
     );
 
     this.router.delete("/:id", (req, res) => {
-      const result = this.itemsService.delete(req.params.id);
+      const result = this.itemsService.delete(+req.params.id);
       res.send(result);
     });
   }

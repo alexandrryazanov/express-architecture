@@ -36,4 +36,6 @@ deploy-production.sh
 # Sentry Config File
 .sentryclirc
 
+/generated/prisma
+
 /build

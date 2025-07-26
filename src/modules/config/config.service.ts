@@ -1,11 +1,12 @@
-let configRecord = { id: 1, name: "General config", value: "" }; // это типа строчка в БД
+let configRecord = {id: 1, name: "General config", value: ""}
 
 export class ConfigService {
-  setConfig(config: object) {
-    configRecord.value = JSON.stringify(config);
-  }
+    setConfig(config: object) {
+        configRecord.value = JSON.stringify(config);
+        return "The value is set"
+    }
 
-  getConfig() {
-    return JSON.parse(configRecord.value);
-  }
+    getConfig() {
+        return JSON.parse(configRecord.value);
+    }
 }

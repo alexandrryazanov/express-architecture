@@ -2,6 +2,7 @@ import {
   NotFoundError,
 } from "../../exceptions/error.exception";
 import type { PrismaService } from "../prisma/prisma.service";
+import { CreateOrderDto } from "./dto/create-order.dto";
 
 export class OrdersService {
   constructor(private prismaService: PrismaService) {}
@@ -14,13 +15,16 @@ export class OrdersService {
     });
   }
 
-  async create({}: any) {
+  async create({ userId, itemIds }: CreateOrderDto) {
     // creating in DB
+    const connectArray = (itemIds as number[]).map((itemId) => ({ id : itemId }));
     return this.prismaService.order.create({
       data: {
-        user: { connect: { id: 1 } },
+        user: { connect: { id: userId } },
         items: {
-          connect: [{ id: 1 }, { id: 2 }],
+          // connect: [{ id: 1 }, { id: 2 }],
+          // map((i) => ({id: i}))
+          connect: connectArray,
         },
       },
       include: {

@@ -3,9 +3,8 @@ import "joi-extract-type";
 
 export const createOrderDto = joi
   .object({
-    userId:       joi.number().required(),
-    productName:  joi.string().required(),
-    amount:       joi.number().required(),
+    userId:   joi.number().required(),
+    itemIds:  joi.array().items(joi.number().required()),
   })
   .required();
 

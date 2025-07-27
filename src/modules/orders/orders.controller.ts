@@ -15,17 +15,18 @@ export class OrdersController extends Controller {
     });
 
     this.router.get("/:id", async (req, res) => {
-      const result = await this.ordersService.getOne();
+      const result = await this.ordersService.getOne(Number(req.params.id));
       res.send(result);
     });
 
-    this.router.post("/", async (req, res) => {
-      const result = await this.ordersService.create(req.body);
-      res.send(result);
+    this.router.post("/", validateMiddleware(createOrderDto, "orders"),
+      async (req, res) => {
+        const result = await this.ordersService.create(req.body);
+        res.send(result);
     });
 
     this.router.delete("/:id", async (req, res) => {
-      const result = await this.ordersService.delete(req.params.id);
+      const result = await this.ordersService.delete(Number(req.params.id));
       res.send(result);
     });
   }

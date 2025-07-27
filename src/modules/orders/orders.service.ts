@@ -1,3 +1,6 @@
+import {
+  NotFoundError,
+} from "../../exceptions/error.exception";
 import type { PrismaService } from "../prisma/prisma.service";
 
 export class OrdersService {
@@ -27,12 +30,25 @@ export class OrdersService {
     });
   }
 
-  async delete({}: any) {
-    // deleting
-    return { id: 1, name: "order 1" };
+  async delete(id: number) {
+    const order = await this.prismaService.order.findUnique({
+      where: { id },
+    });
+
+    if (!order) throw new NotFoundError("Order not found");
+
+    return this.prismaService.order.delete({
+      where: { id },
+    });
   }
 
-  async getOne() {
-    return { id: 1, name: "order 1" };
+  async getOne(id: number) {
+    const order = this.prismaService.order.findUnique({
+      where: { id },
+    });
+    
+    if (!order) throw new NotFoundError("Order not found");
+
+    return order;
   }
 }

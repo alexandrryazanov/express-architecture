@@ -1,6 +1,4 @@
-import {
-  NotFoundError,
-} from "../../exceptions/error.exception";
+import { NotFoundError } from "../../exceptions/error.exception";
 import type { PrismaService } from "../prisma/prisma.service";
 import { CreateOrderDto } from "./dto/create-order.dto";
 
@@ -16,14 +14,26 @@ export class OrdersService {
   }
 
   async create({ userId, itemIds }: CreateOrderDto) {
-    // creating in DB
-    const connectArray = (itemIds as number[]).map((itemId) => ({ id : itemId }));
+    const user = this.prismaService.user.findUnique({ where: { id: userId } });
+
+    if (!user) {
+      throw new NotFoundError(`User with id ${userId} not found`);
+    }
+
+    const itemsCount = await this.prismaService.item.count({
+      where: { id: { in: itemIds } },
+    });
+
+    if (itemsCount !== itemIds.length) {
+      throw new NotFoundError("Some items not found");
+    }
+
+    const connectArray = itemIds.map((itemId) => ({ id: itemId }));
+
     return this.prismaService.order.create({
       data: {
         user: { connect: { id: userId } },
         items: {
-          // connect: [{ id: 1 }, { id: 2 }],
-          // map((i) => ({id: i}))
           connect: connectArray,
         },
       },
@@ -50,7 +60,7 @@ export class OrdersService {
     const order = this.prismaService.order.findUnique({
       where: { id },
     });
-    
+
     if (!order) throw new NotFoundError("Order not found");
 
     return order;

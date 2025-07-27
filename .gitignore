@@ -37,3 +37,5 @@ deploy-production.sh
 .sentryclirc
 
 /generated/prisma
+
+/build

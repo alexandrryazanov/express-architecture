@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "nodemon",
-    "migrate": "node migrations/init.js",
-    "seed": "node seed/init.js"
+    "migrate_dev": "npx prisma migrate dev",
+    "migrate_deploy": "npx prisma migrate deploy",
+    "seed": "ts-node prisma/seed.ts"
   },
   "keywords": [],
   "author": "",

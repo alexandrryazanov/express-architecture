@@ -11,6 +11,7 @@ const client = new Client({
 
 client.connect().then(async () => {
   try {
+    // suggect to drop all tables here to be capable to do migration several times w/o errors
     const sql = readFileSync("./migrations/init.sql", "utf-8");
     await client.query(sql);
     await client.end();

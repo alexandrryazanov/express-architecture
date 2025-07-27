@@ -1,4 +1,6 @@
+import { NotFoundError } from "../../exceptions/error.exception";
 import type { PrismaService } from "../prisma/prisma.service";
+import { CreateOrderDto } from "./dto/create-order.dto";
 
 export class OrdersService {
   constructor(private prismaService: PrismaService) {}
@@ -11,13 +13,28 @@ export class OrdersService {
     });
   }
 
-  async create({}: any) {
-    // creating in DB
+  async create({ userId, itemIds }: CreateOrderDto) {
+    const user = this.prismaService.user.findUnique({ where: { id: userId } });
+
+    if (!user) {
+      throw new NotFoundError(`User with id ${userId} not found`);
+    }
+
+    const itemsCount = await this.prismaService.item.count({
+      where: { id: { in: itemIds } },
+    });
+
+    if (itemsCount !== itemIds.length) {
+      throw new NotFoundError("Some items not found");
+    }
+
+    const connectArray = itemIds.map((itemId) => ({ id: itemId }));
+
     return this.prismaService.order.create({
       data: {
-        user: { connect: { id: 1 } },
+        user: { connect: { id: userId } },
         items: {
-          connect: [{ id: 1 }, { id: 2 }],
+          connect: connectArray,
         },
       },
       include: {
@@ -27,12 +44,25 @@ export class OrdersService {
     });
   }
 
-  async delete({}: any) {
-    // deleting
-    return { id: 1, name: "order 1" };
+  async delete(id: number) {
+    const order = await this.prismaService.order.findUnique({
+      where: { id },
+    });
+
+    if (!order) throw new NotFoundError("Order not found");
+
+    return this.prismaService.order.delete({
+      where: { id },
+    });
   }
 
-  async getOne() {
-    return { id: 1, name: "order 1" };
+  async getOne(id: number) {
+    const order = this.prismaService.order.findUnique({
+      where: { id },
+    });
+
+    if (!order) throw new NotFoundError("Order not found");
+
+    return order;
   }
 }

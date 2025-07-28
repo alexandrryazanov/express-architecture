@@ -4,7 +4,7 @@ import "joi-extract-type";
 export const createUserDto = joi
   .object({
     email: joi.string().email().required(),
-    password: joi.string().required(),
+    pwd: joi.string().required(),
   })
   .required();
 

@@ -1,14 +1,10 @@
-import {
-  BadRequestError,
-  NotFoundError,
-} from "../../exceptions/error.exception";
-import type { PrismaService } from "../prisma/prisma.service";
+import type { PostgresService } from "../postgres/postgres.services";
 import type { RedisService } from "../redis/redis.services";
 import type { CreateUserDto } from "./dto/create-user.dto";
 
 export class UsersService {
   constructor(
-    private prismaService: PrismaService,
+    private postgresService: PostgresService,
     private redisService: RedisService,
   ) {}
 
@@ -16,41 +12,37 @@ export class UsersService {
     limit = 10,
     offset = 0,
   }: { limit?: number; offset?: number } = {}) {
-    return this.prismaService.user.findMany({
-      take: limit,
-    });
+    const redisUsers = await this.redisService.client.get(
+      `users:${limit}:${offset}`,
+    );
+    if (redisUsers) return JSON.parse(redisUsers);
+
+    const { rows: users } = await this.postgresService.client.query(
+      `SELECT * FROM users LIMIT $1 OFFSET $2`,
+      [limit, offset],
+    );
+
+    await this.redisService.client.set("users", JSON.stringify(users));
+
+    return users;
   }
 
-  async create({ email, password }: CreateUserDto) {
-    const existedUser = await this.prismaService.user.findUnique({
-      where: { email },
-    });
-    if (existedUser) throw new BadRequestError("User already exists");
-
-    const newUser = await this.prismaService.user.create({
-      data: { email, password },
-    });
+  async create({ email, pwd }: CreateUserDto) {
+    const { rows: users } = await this.postgresService.client.query(
+      `INSERT INTO users (email, pwd) VALUES ('${email}', '${pwd}');`,
+    );
 
     await this.redisService.client.del("users:*");
 
-    return newUser;
+    return users;
   }
 
-  async delete(id: number) {
-    const user = await this.prismaService.user.findUnique({
-      where: { id },
-    });
-
-    if (!user) throw new NotFoundError("User not found");
-
-    return this.prismaService.user.delete({ where: { id: id } });
+  delete({}: any) {
+    // deleting
+    return { id: 1, name: "user 1" };
   }
 
-  async getOne(id: number) {
-    const user = await this.prismaService.user.findUnique({
-      where: { id },
-    });
-    if (!user) throw new NotFoundError("User not found");
-    return user;
+  getOne(userId?: number) {
+    return { id: 1, name: "user 1" };
   }
 }

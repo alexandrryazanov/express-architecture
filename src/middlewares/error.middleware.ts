@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import type { ServerError } from "../exceptions/error.exception";
+import type { ServerError } from "../extensions/error.extension";
 
 export function errorMiddleware(
   error: ServerError,

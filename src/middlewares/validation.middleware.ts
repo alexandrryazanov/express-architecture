@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import * as joi from "@hapi/joi";
-import { BadRequestError } from "../exceptions/error.exception";
+import { BadRequestError } from "../extensions/error.extension";
 
 export function validateMiddleware(
   schema: joi.BoxObjectSchema<any>,

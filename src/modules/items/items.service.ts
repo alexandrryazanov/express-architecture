@@ -1,5 +1,5 @@
 import { CreateItemDto } from "./dto/create-item.dto";
-import { BadRequestError } from "../../exceptions/error.exception";
+import { BadRequestError } from "../../extensions/error.extension";
 
 export let itemsData = [
   { id: 1, name: "item  1" },
